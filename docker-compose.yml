@@ -1,0 +1,136 @@
+
+services:
+  # ============================================
+  # Infrastructure
+  # ============================================
+  postgres:
+    image: postgres:16-alpine
+    container_name: alegra-postgres
+    environment:
+      POSTGRES_USER: alegra
+      POSTGRES_PASSWORD: alegra_secret
+      POSTGRES_DB: alegra_restaurant
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U alegra -d alegra_restaurant"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - alegra-network
+
+  nats:
+    image: nats:2.10-alpine
+    container_name: alegra-nats
+    ports:
+      - "4222:4222"
+      - "8222:8222"  # Monitoring
+    command: ["--jetstream", "--http_port", "8222"]
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8222/healthz"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - alegra-network
+
+  # ============================================
+  # Microservices
+  # ============================================
+  gateway:
+    build:
+      context: ./services/gateway
+      dockerfile: Dockerfile
+    container_name: alegra-gateway
+    ports:
+      - "${GATEWAY_PORT:-3000}:3000"
+    environment:
+      - DATABASE_URL=postgresql://alegra:alegra_secret@postgres:5432/alegra_restaurant
+      - NATS_URL=nats://nats:4222
+      - PORT=3000
+      - NODE_ENV=development
+    depends_on:
+      postgres:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+    networks:
+      - alegra-network
+
+  orders:
+    build:
+      context: ./services/orders
+      dockerfile: Dockerfile
+    container_name: alegra-orders
+    environment:
+      - DATABASE_URL=postgresql://alegra:alegra_secret@postgres:5432/alegra_restaurant
+      - NATS_URL=nats://nats:4222
+      - NODE_ENV=development
+    depends_on:
+      postgres:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+    networks:
+      - alegra-network
+
+  kitchen:
+    build:
+      context: ./services/kitchen
+      dockerfile: Dockerfile
+    container_name: alegra-kitchen
+    environment:
+      - DATABASE_URL=postgresql://alegra:alegra_secret@postgres:5432/alegra_restaurant
+      - NATS_URL=nats://nats:4222
+      - NODE_ENV=development
+    depends_on:
+      postgres:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+    networks:
+      - alegra-network
+
+  warehouse:
+    build:
+      context: ./services/warehouse
+      dockerfile: Dockerfile
+    container_name: alegra-warehouse
+    environment:
+      - DATABASE_URL=postgresql://alegra:alegra_secret@postgres:5432/alegra_restaurant
+      - NATS_URL=nats://nats:4222
+      - MARKET_API_URL=https://recruitment.alegra.com/api/farmers-market/buy
+      - NODE_ENV=development
+    depends_on:
+      postgres:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+    networks:
+      - alegra-network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: alegra-frontend
+    ports:
+      - "${FRONTEND_PORT:-5173}:5173"
+    environment:
+      - VITE_API_URL=http://localhost:3000
+      - VITE_WS_URL=ws://localhost:3000/ws
+    depends_on:
+      - gateway
+    networks:
+      - alegra-network
+
+volumes:
+  postgres_data:
+
+networks:
+  alegra-network:
+    driver: bridge
