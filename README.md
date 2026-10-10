@@ -29,7 +29,8 @@
 7. [Mantenimiento y Comandos Útiles](#-mantenimiento-y-comandos-útiles)
 8. [API Endpoints y WebSockets](#-api-endpoints-y-websockets)
 9. [Catálogo de Recetas e Ingredientes](#-catálogo-de-recetas-e-ingredientes)
-10. [Resiliencia y Manejo de Concurrencia](#-resiliencia-y-manejo-de-concurrencia)
+10. [Punto Bonus IA — Alegra AI Restaurant Copilot & Insights](#-punto-bonus-ia--alegra-ai-restaurant-copilot--insights)
+11. [Resiliencia y Manejo de Concurrencia](#-resiliencia-y-manejo-de-concurrencia)
 
 ---
 
@@ -237,6 +238,7 @@ Prueba tecnica Alegra/
 │   │   ├── package.json
 │   │   ├── tsconfig.json
 │   │   └── src/
+│   │       ├── ai-service.ts         # Motor de IA: Copilot, simulación predictiva y diagnóstico
 │   │       ├── database.ts           # Pool de conexiones a PostgreSQL
 │   │       ├── index.ts              # Entrypoint del servidor HTTP y WebSocket
 │   │       ├── nats-client.ts        # Conexión y suscripciones a NATS
@@ -282,23 +284,27 @@ Prueba tecnica Alegra/
     ├── tsconfig.node.json
     ├── vite.config.ts
     └── src/
-        ├── App.tsx                   # Componente orquestador de vistas
-        ├── index.css                 # Sistema de diseño Zinc, variables y animaciones
+        ├── App.tsx                   # Orquestador principal (Layout, Sidebar, TopNav, Vistas)
+        ├── index.css                 # Sistema de diseño, tokens de color (#1E262C, #C85A32, #1B4D3E, #F8F6F2)
         ├── main.tsx                  # Punto de montaje de React
         ├── vite-env.d.ts
+        ├── views/
+        │   ├── DashboardView.tsx     # Vista inicial (KPIs, gráfico de flujo, stock vivo, pedidos recientes)
+        │   ├── KitchenManagementView.tsx # Gestión de Cocina (partidas calientes, avance y capacidad)
+        │   ├── PurchasesManagementView.tsx # Gestión de Compras (historial en plaza, exportación CSV, desglose)
+        │   ├── RecipesManagementView.tsx   # Gestión de Recetas (tabla/tarjetas, insumos disponibles en tiempo real)
+        │   └── SettingsView.tsx      # Configuración de clúster e infraestructura de microservicios
         ├── components/
-        │   ├── EventsFeed.tsx        # Monitor de eventos en vivo
-        │   ├── InventoryPanel.tsx    # Tarjetas de stock con barras visuales
-        │   ├── KitchenView.tsx       # Estado de platos en preparación
-        │   ├── OrderForm.tsx         # Botones rápidos y solicitud de pedidos
-        │   ├── OrdersList.tsx        # Historial de pedidos y progreso
-        │   ├── PurchasesPanel.tsx    # Historial de compras en la Plaza de Mercado
-        │   ├── RecipesPanel.tsx      # Menú de 6 recetas con disponibilidad de stock
-        │   └── StatsGrid.tsx         # KPIs ejecutivos en tiempo real
+        │   ├── Sidebar.tsx           # Barra lateral fija con navegación y botón "+ Nuevo Pedido"
+        │   ├── TopNav.tsx            # Barra superior con estado en vivo, buscador y perfil de turno
+        │   ├── FloatingAiWidget.tsx  # Asistente IA flotante desacoplado en esquina inferior derecha
+        │   ├── NewOrderModal.tsx     # Modal de despacho masivo de comandas (1, 3, 5, 10, 25 platos)
+        │   ├── EventsFeed.tsx        # Auditoría de eventos NATS en tiempo real
+        │   └── ...                   # Componentes modulares y paneles auxiliares
         ├── hooks/
-        │   └── useRestaurant.ts      # Hook con WebSocket y sincronización de estado
+        │   └── useRestaurant.ts      # Hook con WebSocket y sincronización reactiva de estado
         └── services/
-            └── api.ts                # Cliente REST para interactuar con el Gateway
+            └── api.ts                # Cliente REST para interactuar con el API Gateway e IA
 ```
 
 ---
@@ -312,9 +318,71 @@ Prueba tecnica Alegra/
 | **Tiempo Real** | `ws` (WebSockets nativo) | Comunicación bidireccional ligera entre Gateway y Frontend. |
 | **Message Broker** | NATS 2.10 | Ultraligero (~15MB RAM), latencia sub-milisegundo y pub/sub nativo. |
 | **Base de Datos** | PostgreSQL 16 | Motor relacional robusto con transacciones ACID y `SELECT ... FOR UPDATE`. |
-| **Frontend** | React 18 + Vite + TypeScript | Renderizado reactivo rápido, bundle optimizado y arquitectura de componentes. |
-| **Iconografía y Estilos**| Lucide React + Vanilla CSS | Iconos vectoriales limpios y variables CSS modernas inspiradas en tokens Zinc. |
+| **Frontend** | React 19 + Vite + TypeScript | Renderizado reactivo rápido, bundle optimizado y arquitectura de componentes. |
+| **Diseño y Estilos**| Vanilla CSS + Google Fonts | Paleta corporativa (#1E262C, #C85A32, #1B4D3E, #F8F6F2), Plus Jakarta Sans e Inter. |
 | **Contenerización** | Docker + Docker Compose | Aislamiento garantizado, portabilidad y arranque con un solo comando. |
+
+---
+
+## 🎨 Sistema de Diseño y Refactorización del Frontend
+
+El frontend fue completamente refactorizado para adaptarse a las necesidades del gerente no técnico, ofreciendo una experiencia inmersiva, reactiva y humana basada en un sistema de diseño estructurado:
+
+### 1. Paleta de Colores y Tipografía Corporativa
+- **Primary (`#1E262C`)**: Gris pizarra oscuro / carbón utilizado en navegación principal, encabezados, botones de acción primaria y badges de control.
+- **Secondary (`#C85A32`)**: Terracota / cobre cálido utilizado para advertencias de stock bajo, estados en preparación y acentos de atención.
+- **Tertiary (`#1B4D3E`)**: Verde bosque profundo utilizado para estados completados, stock óptimo y métricas exitosas.
+- **Neutral Canvas (`#F8F6F2`)**: Fondo cálido tipo lienzo marfil con tarjetas en blanco puro (`#FFFFFF`) y bordes suaves (`#ECE8E1`).
+- **Tipografía**: Importada desde Google Fonts:
+  - **Headlines**: `Plus Jakarta Sans` (peso 600, 700, 800) para títulos ejecutivos y números de impacto.
+  - **Body & Labels**: `Inter` (peso 400, 500, 600) para lectura cómoda de tablas, etiquetas y descripciones.
+
+---
+
+### 2. Vistas Operativas de la Aplicación
+
+#### 📊 Dashboard (Vista Inicial)
+- **4 KPIs Operativos en Tiempo Real**: Pedidos Totales (+12% hoy), Platos Entregados (% cumplimiento), En Preparación (órdenes activas) y Compras en Plaza (compras automáticas resueltas).
+- **Flujo de Comandas por Hora**: Gráfico de barras visual que muestra el volumen y distribución de platos completados vs. en cocina a lo largo de la jornada.
+- **Inventario en Bodega**: Monitoreo en vivo de los 10 ingredientes del restaurante con barras de progreso y detección inmediata de stock crítico (<= 2 unidades).
+- **Tabla de Pedidos Recientes**: Tabla paginada con filtros por estado (*Todos*, *En Cocina*, *Completados*), número de comanda, progreso porcentual y hora formateada.
+
+#### 🍳 Gestión de Cocina y Producción
+- **Filtros por Partida / Estación**: *Todas las Líneas*, *Plancha & Carnes*, *Guisos & Arroces*, *Ensaladas & Guarnición*.
+- **Comandas y Platos en Curso**: Seguimiento de cada comanda con estación asignada, estado de cocción y barra de avance individual.
+- **Alertas de Abastecimiento**: Registro en vivo de las solicitudes de insumos enviadas hacia el broker NATS (`ingredients.request`).
+- **Capacidad de Estaciones**: Medidores visuales de saturación y carga por partida.
+
+#### 🛒 Gestión de Compras y Abastecimiento
+- **Logística Adaptada a la Jornada de Donación**: Métricas operativas sin cifras financieras ficticias: *Total Unidades Compradas*, *Transacciones Exitosas* y *Tasa de Disponibilidad en Bodega*.
+- **Transacciones de Compras**: Historial reactivo de adquisiciones en la Plaza de Mercado de Alegra con filtro por insumo y botón para **Exportar CSV**.
+- **Composición del Abastecimiento**: Barra segmentada con el desglose porcentual por familias de ingredientes (*Verduras & Frescos*, *Proteínas*, *Granos & Lácteos*, *Condimentos*).
+- **Sugerencia Predictiva de Reorden**: Alerta algorítmica que recomienda abastecer de forma prioritaria el insumo con menor stock disponible.
+
+#### 📖 Gestión de Recetas y Fichas Técnicas
+- **Catálogo de 6 Fichas Homologadas**: Buscador instantáneo y filtros por ingredientes clave (*Con Proteínas*, *Con Arroz*, *Vegetales*).
+- **Selector de Vista Dual**: Alternancia fluida entre visualización en **Tabla** y **Tarjetas**.
+- **Disponibilidad de Insumos en Vivo**: Cada receta desglosa sus ingredientes con chips reactivos (verde si hay stock suficiente en bodega, ámbar si requerirá compra automática en la plaza).
+- **Acción Directa**: Botón para solicitar la preparación de la receta.
+
+#### ⚙️ Configuración y Salud de Microservicios
+- Panel de infraestructura con monitoreo del estado operativo del API Gateway (3000), broker NATS (4222), base de datos PostgreSQL (5432) y la API externa de Alegra Farmers Market.
+
+---
+
+### 3. Widget de Inteligencia Artificial Flotante (Chef Copilot)
+- **Ubicación no invasiva**: Acoplado en la esquina inferior derecha mediante un botón de acceso rápido `✨ IA Operativa Activa`.
+- **Ventana interactiva con controles de minimizar y cerrar**, equipada con 3 pestañas:
+  1. **Chat Copilot**: Consultas en lenguaje natural con sugerencias rápidas (*"¿Qué insumos están en riesgo?"*, *"¿Cómo rinde la plaza hoy?"*).
+  2. **Simulador de Demanda**: Simulación estocástica de tandas masivas (10, 20, 50, 100 platos) con cálculo de déficit y compras estimadas en la plaza.
+  3. **Diagnóstico y Salud**: Índice operativo de salud (0-100), resumen de situación y recomendaciones ejecutivas.
+
+---
+
+### 4. Modal de Alta Demanda (+ Nuevo Pedido)
+- Accesible globalmente desde el botón principal del sidebar.
+- Presets rápidos de 1, 3, 5, 10 y 25 platos, o ingreso manual de cualquier cantidad.
+- Automatización al 100% con retroalimentación inmediata y despacho asíncrono.
 
 ---
 
@@ -537,6 +605,9 @@ El `gateway-service` expone los siguientes endpoints REST y el canal WebSocket:
 | `GET` | `/api/kitchen/recipes` | Listado de las 6 recetas disponibles | Array con nombres e ingredientes por receta |
 | `GET` | `/api/stats` | Métricas de operación para KPIs | Totales de platos cocinados, compras y órdenes |
 | `GET` | `/api/purchases` | Historial de compras en la plaza | Registro cronológico de compras a Alegra Farmers Market |
+| `GET` | `/api/ai/insights` | Diagnóstico de salud operativa con IA | Resumen ejecutivo, health score (0-100) y recomendaciones |
+| `POST` | `/api/ai/simulate` | Simulador predictivo de demanda masiva | **Body:** `{"platesCount": 20}`<br>**Respuesta:** Proyección de consumo y compras requeridas |
+| `POST` | `/api/ai/chat` | Asistente Copiloto en lenguaje natural | **Body:** `{"message": "..."}`<br>**Respuesta:** Análisis fundamentado en telemetría viva |
 | `WS` | `/ws` | Conexión WebSocket para eventos en vivo | Emite eventos JSON de NATS en tiempo real al frontend |
 
 ---
@@ -565,6 +636,30 @@ El `gateway-service` expone los siguientes endpoints REST y el canal WebSocket:
 | **4** | 🍟 **Patatas con Queso** | 2 Patatas, 1 Queso, 1 Ketchup |
 | **5** | 🌮 **Tacos de Carne** | 1 Carne, 1 Tomate, 1 Cebolla, 1 Lechuga, 1 Queso |
 | **6** | 🍚 **Arroz con Pollo** | 2 Arroz, 1 Pollo, 1 Tomate, 1 Cebolla |
+
+---
+
+## 🤖 Punto Bonus IA — Alegra AI Restaurant Copilot & Insights
+
+Como respuesta al requerimiento bonus de Inteligencia Artificial de Alegra (*"no buscamos IA por moda, sino una solución que resuelva un problema real o mejore el producto"*), se integró en el código y en el despliegue una solución de IA de alto valor operativo para el gerente:
+
+### 1. Diagnóstico de Salud Operativa en Tiempo Real (`GET /api/ai/insights`)
+- Calcula un índice de salud algorítmico (0 a 100) basado en niveles de reserva en bodega, ingredientes en cero y tasa de respuesta de la plaza de mercado.
+- Genera recomendaciones estratégicas inmediatas (ej. alertas de ingredientes en nivel crítico que activarán compras automáticas en los próximos pedidos).
+
+### 2. Simulador Predictivo de Demanda Masiva (`POST /api/ai/simulate`)
+- Permite al gerente ingresar una tanda masiva de comensales (ej. 10, 20, 50, 100 platos).
+- Proyecta la probabilidad equitativa de preparación de las 6 recetas y calcula el consumo esperado de cada ingrediente contra el stock vivo en PostgreSQL.
+- Identifica cuellos de botella (*bottlenecks*) antes de disparar los pedidos y estima cuántas compras automáticas deberán realizarse a la Plaza de Mercado de Alegra.
+
+### 3. Asistente Copiloto en Lenguaje Natural (`POST /api/ai/chat`)
+- Chat conversacional interactivo directamente en el dashboard del gerente.
+- Inyecta telemetría viva en el system prompt (inventario actual, órdenes activas, platos servidos, histórico de compras en la plaza de mercado).
+- **Arquitectura Multimodelo Resiliente**:
+  - Soporta **Groq** (`llama-3.3-70b-versatile` para respuestas sub-300ms).
+  - Soporta **OpenAI** (`gpt-4o-mini`).
+  - Soporta **Google Gemini** (`gemini-1.5-flash`).
+  - **Zero-Config Fallback (Motor Heurístico Local)**: Si el evaluador levanta el sistema sin ninguna API key configurada, el sistema conmuta automáticamente a un motor heurístico de reglas deterministas basado en la BD de PostgreSQL, garantizando que el chat y las simulaciones sean 100% funcionales y estables en cualquier entorno sin requerir registro ni costos.
 
 ---
 
