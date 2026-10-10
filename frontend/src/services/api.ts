@@ -1,5 +1,31 @@
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
-const WS_URL = import.meta.env.VITE_WS_URL || 'ws://localhost:3000/ws';
+function normalizeHttpUrl(raw?: string): string {
+  if (!raw) return 'http://localhost:3000';
+  let url = raw.trim().replace(/\/+$/, '');
+  if (/^https?:\/\//i.test(url)) return url;
+  return url.includes('localhost') ? `http://${url}` : `https://${url}`;
+}
+
+function normalizeWsUrl(rawWs?: string, rawHttp?: string): string {
+  let target = (rawWs || rawHttp || '').trim().replace(/\/+$/, '');
+  if (!target) return 'ws://localhost:3000/ws';
+
+  if (target.startsWith('https://')) {
+    target = 'wss://' + target.slice(8);
+  } else if (target.startsWith('http://')) {
+    target = 'ws://' + target.slice(7);
+  } else if (!/^wss?:\/\//i.test(target)) {
+    const proto = target.includes('localhost') ? 'ws://' : 'wss://';
+    target = proto + target;
+  }
+
+  if (!target.endsWith('/ws')) {
+    target = `${target}/ws`;
+  }
+  return target;
+}
+
+const API_URL = normalizeHttpUrl(import.meta.env.VITE_API_URL);
+const WS_URL = normalizeWsUrl(import.meta.env.VITE_WS_URL, import.meta.env.VITE_API_URL);
 
 // ── REST API ──
 
