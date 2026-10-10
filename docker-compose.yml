@@ -53,6 +53,9 @@ services:
       - NATS_URL=nats://nats:4222
       - PORT=3000
       - NODE_ENV=development
+      - GROQ_API_KEY=${GROQ_API_KEY:-}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-}
     depends_on:
       postgres:
         condition: service_healthy
