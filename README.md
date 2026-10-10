@@ -292,6 +292,8 @@ Prueba tecnica Alegra/
         │   ├── KitchenView.tsx       # Estado de platos en preparación
         │   ├── OrderForm.tsx         # Botones rápidos y solicitud de pedidos
         │   ├── OrdersList.tsx        # Historial de pedidos y progreso
+        │   ├── PurchasesPanel.tsx    # Historial de compras en la Plaza de Mercado
+        │   ├── RecipesPanel.tsx      # Menú de 6 recetas con disponibilidad de stock
         │   └── StatsGrid.tsx         # KPIs ejecutivos en tiempo real
         ├── hooks/
         │   └── useRestaurant.ts      # Hook con WebSocket y sincronización de estado
