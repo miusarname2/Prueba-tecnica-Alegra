@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { connectWebSocket, getOrders, getInventory, getStats, getPurchases } from '../services/api';
+import { connectWebSocket, getOrders, getInventory, getStats, getPurchases, getRecipes } from '../services/api';
 
 export interface Ingredient {
   id: string;
@@ -29,9 +29,27 @@ export interface Stats {
 export interface Purchase {
   id: string;
   ingredient_name: string;
+  ingredient_id?: string;
+  quantity_requested: number;
   quantity_bought: number;
   success: boolean;
   purchased_at: string;
+}
+
+export interface RecipeIngredient {
+  ingredient_id: string;
+  ingredient_name: string;
+  ingredient_name_en: string;
+  quantity: number;
+  stock?: number;
+}
+
+export interface Recipe {
+  id: string;
+  name: string;
+  description: string;
+  image_url?: string;
+  ingredients: RecipeIngredient[];
 }
 
 export function useRestaurant() {
@@ -46,21 +64,24 @@ export function useRestaurant() {
     successfulPurchases: 0,
   });
   const [purchases, setPurchases] = useState<Purchase[]>([]);
+  const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [connected, setConnected] = useState(false);
   const [liveEvents, setLiveEvents] = useState<Array<{ id: string; type: string; message: string; time: string }>>([]);
 
   const refreshAll = useCallback(async () => {
     try {
-      const [ordersData, invData, statsData, purchData] = await Promise.all([
+      const [ordersData, invData, statsData, purchData, recipesData] = await Promise.all([
         getOrders(),
         getInventory(),
         getStats(),
         getPurchases(),
+        getRecipes(),
       ]);
       setOrders(ordersData);
       setInventory(invData);
       setStats(statsData);
       setPurchases(purchData);
+      setRecipes(recipesData);
     } catch (err) {
       console.error('Fetch error:', err);
     }
@@ -126,5 +147,5 @@ export function useRestaurant() {
     };
   }, [refreshAll, addEvent]);
 
-  return { orders, inventory, stats, purchases, connected, liveEvents, refreshAll };
+  return { orders, inventory, stats, purchases, recipes, connected, liveEvents, refreshAll };
 }
