@@ -1,6 +1,7 @@
 import { createServer } from 'http';
 import { connectNats, subscribe, closeNats } from './nats-client';
 import { closePool } from './database';
+import { ensureDatabaseSchema } from './init-db';
 import { setupWebSocket, broadcast } from './websocket';
 import { handleRequest } from './router';
 
@@ -17,6 +18,7 @@ const BROADCAST_SUBJECTS = [
 async function main(): Promise<void> {
   console.log('[gateway] Starting service...');
   await connectNats();
+  await ensureDatabaseSchema();
 
   const server = createServer(async (req, res) => {
     await handleRequest(req, res);
