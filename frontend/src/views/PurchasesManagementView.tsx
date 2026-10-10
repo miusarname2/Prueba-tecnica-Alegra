@@ -84,7 +84,6 @@ export function PurchasesManagementView({
 
   return (
     <div className="view-page purchases-management-view">
-      {/* Page Header */}
       <div className="page-header">
         <div className="page-title-wrap">
           <span className="page-category-tag">Operaciones de Cadena • Abastecimiento & Logística</span>
@@ -111,9 +110,7 @@ export function PurchasesManagementView({
         </div>
       </div>
 
-      {/* 3 Top Logistics KPIs (Matching Design Image 2) */}
       <div className="kpi-grid-three">
-        {/* KPI 1 */}
         <div className="kpi-card">
           <div className="kpi-card-header">
             <span className="kpi-card-label">TOTAL UNIDADES COMPRADAS</span>
@@ -130,7 +127,6 @@ export function PurchasesManagementView({
           </div>
         </div>
 
-        {/* KPI 2 */}
         <div className="kpi-card">
           <div className="kpi-card-header">
             <span className="kpi-card-label">TRANSACCIONES EXITOSAS</span>
@@ -147,7 +143,6 @@ export function PurchasesManagementView({
           </div>
         </div>
 
-        {/* KPI 3 */}
         <div className="kpi-card">
           <div className="kpi-card-header">
             <span className="kpi-card-label">TASA DE DISPONIBILIDAD</span>
@@ -173,7 +168,6 @@ export function PurchasesManagementView({
         </div>
       </div>
 
-      {/* Main Transactions Panel */}
       <div className="panel-box purchases-table-panel">
         <div className="panel-box-header flex-between">
           <div className="panel-title-with-count">
@@ -277,9 +271,7 @@ export function PurchasesManagementView({
         </div>
       </div>
 
-      {/* Bottom Section: Composición del Abastecimiento & Sugerencia Predictiva */}
       <div className="purchases-bottom-grid">
-        {/* Left: Category Breakdown */}
         <div className="panel-box category-breakdown-card">
           <div className="panel-box-header">
             <div>
@@ -335,7 +327,6 @@ export function PurchasesManagementView({
           </div>
         </div>
 
-        {/* Right: Predictive Recommendation (Matching Image 2 lower-right card) */}
         <div className="panel-box predictive-suggestion-card">
           <div className="panel-box-header">
             <div className="predictive-badge-wrap">

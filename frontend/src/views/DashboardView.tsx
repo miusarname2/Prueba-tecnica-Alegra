@@ -46,7 +46,6 @@ export function DashboardView({ orders, inventory, stats, onOpenNewOrder }: Dash
 
   return (
     <div className="view-page dashboard-view">
-      {/* Page Header */}
       <div className="page-header">
         <div className="page-title-wrap">
           <div className="page-title-row">
@@ -79,7 +78,6 @@ export function DashboardView({ orders, inventory, stats, onOpenNewOrder }: Dash
         </div>
       </div>
 
-      {/* 4 Top KPI Cards */}
       <div className="kpi-grid">
         <div className="kpi-card">
           <div className="kpi-card-header">
@@ -152,9 +150,7 @@ export function DashboardView({ orders, inventory, stats, onOpenNewOrder }: Dash
         </div>
       </div>
 
-      {/* Middle Section: Flow & Kitchen Performance */}
       <div className="dashboard-mid-grid">
-        {/* Left: Comandas & Flujo */}
         <div className="panel-box flow-panel">
           <div className="panel-box-header">
             <div>
@@ -174,7 +170,6 @@ export function DashboardView({ orders, inventory, stats, onOpenNewOrder }: Dash
           </div>
 
           <div className="chart-bar-visual-wrap">
-            {/* Visual Bars representing hour blocks */}
             <div className="visual-bar-col">
               <div className="bar-stacked">
                 <div className="bar-seg in-progress" style={{ height: '20%' }} />
@@ -232,7 +227,6 @@ export function DashboardView({ orders, inventory, stats, onOpenNewOrder }: Dash
           </div>
         </div>
 
-        {/* Right: Rendimiento de Cocina & Bodega */}
         <div className="panel-box inventory-kpi-panel">
           <div className="panel-box-header">
             <div>
@@ -279,7 +273,6 @@ export function DashboardView({ orders, inventory, stats, onOpenNewOrder }: Dash
         </div>
       </div>
 
-      {/* Bottom Section: Pedidos Recientes Table */}
       <div className="panel-box recent-orders-panel">
         <div className="panel-box-header">
           <div className="panel-title-with-count">
@@ -365,13 +358,15 @@ export function DashboardView({ orders, inventory, stats, onOpenNewOrder }: Dash
                         </span>
                       </td>
                       <td className="progress-cell">
-                        <div className="cell-progress-track">
-                          <div
-                            className={`cell-progress-fill ${isDone ? 'completed' : 'active'}`}
-                            style={{ width: `${progressPct}%` }}
-                          />
+                        <div className="progress-cell-inner">
+                          <div className="cell-progress-track">
+                            <div
+                              className={`cell-progress-fill ${isDone ? 'completed' : 'active'}`}
+                              style={{ width: `${progressPct}%` }}
+                            />
+                          </div>
+                          <span className="progress-num">{progressPct}%</span>
                         </div>
-                        <span className="progress-num">{progressPct}%</span>
                       </td>
                       <td className="time-cell">{formatTime(order.created_at)}</td>
                     </tr>
@@ -379,6 +374,17 @@ export function DashboardView({ orders, inventory, stats, onOpenNewOrder }: Dash
                 })}
               </tbody>
             </table>
+          </div>
+        )}
+
+        {filteredOrders.length > 0 && (
+          <div className="panel-box-footer flex-between">
+            <span className="pagination-info">
+              Mostrando 1 a {Math.min(10, filteredOrders.length)} de {orders.length} pedidos registrados
+            </span>
+            <div className="pagination-pills">
+              <span className="page-tag active">Pág. 1 / 1</span>
+            </div>
           </div>
         )}
       </div>

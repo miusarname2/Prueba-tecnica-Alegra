@@ -14,14 +14,8 @@ export function KitchenManagementView({ orders, stats, liveEvents }: KitchenMana
   const activeOrders = orders.filter((o) => o.status !== 'COMPLETED');
   const completedOrders = orders.filter((o) => o.status === 'COMPLETED');
 
-  // Extract recent plate events from live stream
-  const plateEvents = liveEvents.filter(
-    (e) => e.type === 'plate' || e.type === 'order'
-  ).slice(0, 10);
-
   return (
     <div className="view-page kitchen-management-view">
-      {/* Header */}
       <div className="page-header">
         <div className="page-title-wrap">
           <div className="page-title-row">
@@ -67,7 +61,6 @@ export function KitchenManagementView({ orders, stats, liveEvents }: KitchenMana
         </div>
       </div>
 
-      {/* 4 Top Kitchen KPIs */}
       <div className="kpi-grid">
         <div className="kpi-card">
           <div className="kpi-card-header">
@@ -136,9 +129,7 @@ export function KitchenManagementView({ orders, stats, liveEvents }: KitchenMana
         </div>
       </div>
 
-      {/* Main Two Column Layout */}
       <div className="kitchen-dual-layout">
-        {/* Left Column: Comandas y Platos en Curso */}
         <div className="panel-box kitchen-orders-column">
           <div className="panel-box-header">
             <div>
@@ -242,9 +233,7 @@ export function KitchenManagementView({ orders, stats, liveEvents }: KitchenMana
           )}
         </div>
 
-        {/* Right Column: Alertas & Capacidad de Línea */}
         <div className="kitchen-sidebar-column">
-          {/* Card 1: Comandas en Riesgo / Abastecimiento */}
           <div className="panel-box risk-alerts-card">
             <div className="panel-box-header">
               <div className="panel-title-with-count">
@@ -277,7 +266,6 @@ export function KitchenManagementView({ orders, stats, liveEvents }: KitchenMana
             </div>
           </div>
 
-          {/* Card 2: Capacidad de Línea */}
           <div className="panel-box line-capacity-card">
             <div className="panel-box-header">
               <h4 className="panel-box-title">Capacidad de Estaciones</h4>

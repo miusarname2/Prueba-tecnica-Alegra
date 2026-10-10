@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Search, Bell, Radio, Clock, ShieldCheck, User } from 'lucide-react';
+import { Search, Bell, User } from 'lucide-react';
 
 interface TopNavProps {
   connected: boolean;
@@ -20,7 +20,6 @@ export function TopNav({
 
   return (
     <header className="app-topnav">
-      {/* Left status badge */}
       <div className="topnav-left">
         <div className="live-branch-badge">
           <span className={`live-pulse-dot ${connected ? 'active' : 'inactive'}`} />
@@ -32,7 +31,6 @@ export function TopNav({
         </div>
       </div>
 
-      {/* Search Input */}
       <div className="topnav-center">
         <div className="search-box">
           <Search size={15} className="search-icon" />
@@ -45,7 +43,6 @@ export function TopNav({
           />
         </div>
 
-        {/* Quick Tabs in Header */}
         <div className="topnav-tabs">
           <button
             className={`topnav-tab-btn ${activeTopTab === 'summary' ? 'active' : ''}`}
@@ -67,7 +64,6 @@ export function TopNav({
         </div>
       </div>
 
-      {/* Right User Actions */}
       <div className="topnav-right">
         <button
           className="topnav-action-btn"

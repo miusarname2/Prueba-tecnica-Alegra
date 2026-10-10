@@ -24,7 +24,6 @@ export default function App() {
     refreshAll,
   } = useRestaurant();
 
-  // Initial landing view is Dashboard (Image 5)
   const [activeTab, setActiveTab] = useState<NavigationTab>('dashboard');
   const [isNewOrderModalOpen, setIsNewOrderModalOpen] = useState(false);
   const [isEventsDrawerOpen, setIsEventsDrawerOpen] = useState(false);
@@ -34,7 +33,6 @@ export default function App() {
 
   return (
     <div className="alegra-app-layout">
-      {/* Fixed Left Sidebar */}
       <Sidebar
         activeTab={activeTab}
         onSelectTab={setActiveTab}
@@ -43,7 +41,6 @@ export default function App() {
         connected={connected}
       />
 
-      {/* Main Content Area */}
       <div className="alegra-main-area">
         <TopNav
           connected={connected}
@@ -97,7 +94,6 @@ export default function App() {
         </main>
       </div>
 
-      {/* Real-time Audit / Events Drawer */}
       {isEventsDrawerOpen && (
         <div className="events-drawer-backdrop" onClick={() => setIsEventsDrawerOpen(false)}>
           <div className="events-drawer-content" onClick={(e) => e.stopPropagation()}>
@@ -116,10 +112,8 @@ export default function App() {
         </div>
       )}
 
-      {/* Floating AI Widget (docked at bottom right) */}
       <FloatingAiWidget />
 
-      {/* Modal for Creating New Orders */}
       <NewOrderModal
         isOpen={isNewOrderModalOpen}
         onClose={() => setIsNewOrderModalOpen(false)}

@@ -6,7 +6,6 @@ import {
   Settings,
   Plus,
   HelpCircle,
-  Activity,
 } from 'lucide-react';
 
 export type NavigationTab = 'dashboard' | 'kitchen' | 'purchases' | 'recipes' | 'settings';
@@ -28,7 +27,6 @@ export function Sidebar({
 }: SidebarProps) {
   return (
     <aside className="app-sidebar">
-      {/* Brand Header */}
       <div className="sidebar-brand">
         <div className="brand-badge">AR</div>
         <div className="brand-info">
@@ -37,7 +35,6 @@ export function Sidebar({
         </div>
       </div>
 
-      {/* Action Button: Nuevo Pedido */}
       <div className="sidebar-cta-wrap">
         <button
           className="btn-new-order"
@@ -49,7 +46,6 @@ export function Sidebar({
         </button>
       </div>
 
-      {/* Nav Menu */}
       <nav className="sidebar-nav">
         <button
           className={`nav-item ${activeTab === 'dashboard' ? 'active' : ''}`}
@@ -100,7 +96,6 @@ export function Sidebar({
         </button>
       </nav>
 
-      {/* Footer Info */}
       <div className="sidebar-footer">
         <div className="footer-status-pill">
           <span className={`status-dot ${connected ? 'online' : 'offline'}`} />

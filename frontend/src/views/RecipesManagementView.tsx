@@ -153,7 +153,6 @@ export function RecipesManagementView({
 
   return (
     <div className="view-page recipes-management-view">
-      {/* Header */}
       <div className="page-header">
         <div className="page-title-wrap">
           <span className="page-category-tag">CATÁLOGO OPERATIVO • {activeRecipesList.length} FICHAS HOMOLOGADAS</span>
@@ -176,7 +175,6 @@ export function RecipesManagementView({
         </div>
       </div>
 
-      {/* 4 Top Recipe KPIs (Matching Design Image 3) */}
       <div className="kpi-grid">
         <div className="kpi-card">
           <div className="kpi-card-header">
@@ -243,7 +241,6 @@ export function RecipesManagementView({
         </div>
       </div>
 
-      {/* Filter and View Mode Bar */}
       <div className="recipes-filter-bar">
         <div className="search-filter-box">
           <Search size={15} className="search-icon" />
@@ -309,7 +306,6 @@ export function RecipesManagementView({
         </div>
       </div>
 
-      {/* Recipes Table or Cards View */}
       {viewMode === 'table' ? (
         <div className="panel-box recipes-table-panel">
           <div className="table-responsive-wrapper">
@@ -389,7 +385,6 @@ export function RecipesManagementView({
           </div>
         </div>
       ) : (
-        /* Cards View */
         <div className="recipes-cards-grid">
           {filteredRecipes.map((recipe) => {
             const ready = isRecipeReady(recipe);
