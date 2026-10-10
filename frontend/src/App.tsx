@@ -1,99 +1,132 @@
 import { useState } from 'react';
 import { useRestaurant } from './hooks/useRestaurant';
-import { StatsGrid } from './components/StatsGrid';
-import { OrderForm } from './components/OrderForm';
-import { InventoryPanel } from './components/InventoryPanel';
-import { OrdersList } from './components/OrdersList';
-import { KitchenView } from './components/KitchenView';
+import { Sidebar, type NavigationTab } from './components/Sidebar';
+import { TopNav } from './components/TopNav';
+import { DashboardView } from './views/DashboardView';
+import { KitchenManagementView } from './views/KitchenManagementView';
+import { PurchasesManagementView } from './views/PurchasesManagementView';
+import { RecipesManagementView } from './views/RecipesManagementView';
+import { SettingsView } from './views/SettingsView';
+import { FloatingAiWidget } from './components/FloatingAiWidget';
+import { NewOrderModal } from './components/NewOrderModal';
 import { EventsFeed } from './components/EventsFeed';
-import { PurchasesPanel } from './components/PurchasesPanel';
-import { RecipesPanel } from './components/RecipesPanel';
-import { Utensils, ChefHat, ShoppingCart, BookOpen } from 'lucide-react';
 import './index.css';
 
-type ActiveTab = 'kitchen' | 'purchases' | 'recipes';
-
 export default function App() {
-  const { orders, inventory, stats, purchases, recipes, connected, liveEvents } = useRestaurant();
-  const [activeTab, setActiveTab] = useState<ActiveTab>('kitchen');
+  const {
+    orders,
+    inventory,
+    stats,
+    purchases,
+    recipes,
+    connected,
+    liveEvents,
+    refreshAll,
+  } = useRestaurant();
+
+  // Initial landing view is Dashboard (Image 5)
+  const [activeTab, setActiveTab] = useState<NavigationTab>('dashboard');
+  const [isNewOrderModalOpen, setIsNewOrderModalOpen] = useState(false);
+  const [isEventsDrawerOpen, setIsEventsDrawerOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const activeOrdersCount = orders.filter((o) => o.status !== 'COMPLETED').length;
 
   return (
-    <div className="app">
-      <header className="header">
-        <div className="header-left">
-          <div className="header-icon">
-            <Utensils size={24} />
-          </div>
-          <div>
-            <h1 className="header-title">Alegra Restaurant</h1>
-            <p className="header-subtitle">Sistema de Gestión — Jornada de Donación Masiva</p>
-          </div>
-        </div>
-        <div className="header-right">
-          <div className={`connection-badge ${connected ? 'online' : 'offline'}`}>
-            <span className="connection-dot" />
-            {connected ? 'En Vivo' : 'Desconectado'}
-          </div>
-        </div>
-      </header>
+    <div className="alegra-app-layout">
+      {/* Fixed Left Sidebar */}
+      <Sidebar
+        activeTab={activeTab}
+        onSelectTab={setActiveTab}
+        onOpenNewOrderModal={() => setIsNewOrderModalOpen(true)}
+        activeOrdersCount={activeOrdersCount}
+        connected={connected}
+      />
 
-      <StatsGrid stats={stats} />
+      {/* Main Content Area */}
+      <div className="alegra-main-area">
+        <TopNav
+          connected={connected}
+          totalEventsCount={liveEvents.length}
+          onToggleEventsDrawer={() => setIsEventsDrawerOpen(!isEventsDrawerOpen)}
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
+        />
 
-      <div className="dashboard">
-        <div className="sidebar-left">
-          <OrderForm />
-          <InventoryPanel inventory={inventory} />
-        </div>
-
-        <div className="main-content">
-          <nav className="tabs-nav" aria-label="Secciones del panel">
-            <button
-              className={`tab-btn ${activeTab === 'kitchen' ? 'active' : ''}`}
-              onClick={() => setActiveTab('kitchen')}
-              type="button"
-            >
-              <ChefHat size={16} />
-              <span>Cocina y Pedidos</span>
-              <span className="tab-badge">{orders.length}</span>
-            </button>
-            <button
-              className={`tab-btn ${activeTab === 'purchases' ? 'active' : ''}`}
-              onClick={() => setActiveTab('purchases')}
-              type="button"
-            >
-              <ShoppingCart size={16} />
-              <span>Compras en Plaza</span>
-              <span className="tab-badge">{purchases.length}</span>
-            </button>
-            <button
-              className={`tab-btn ${activeTab === 'recipes' ? 'active' : ''}`}
-              onClick={() => setActiveTab('recipes')}
-              type="button"
-            >
-              <BookOpen size={16} />
-              <span>Recetas del Menú</span>
-              <span className="tab-badge">{recipes.length || 6}</span>
-            </button>
-          </nav>
+        <main className="alegra-page-container">
+          {activeTab === 'dashboard' && (
+            <DashboardView
+              orders={orders}
+              inventory={inventory}
+              stats={stats}
+              onOpenNewOrder={() => setIsNewOrderModalOpen(true)}
+            />
+          )}
 
           {activeTab === 'kitchen' && (
-            <>
-              <OrdersList orders={orders} />
-              <KitchenView stats={stats} liveEvents={liveEvents} />
-            </>
+            <KitchenManagementView
+              orders={orders}
+              stats={stats}
+              liveEvents={liveEvents}
+            />
           )}
 
           {activeTab === 'purchases' && (
-            <PurchasesPanel purchases={purchases} />
+            <PurchasesManagementView
+              purchases={purchases}
+              inventory={inventory}
+              stats={stats}
+              onOpenNewOrder={() => setIsNewOrderModalOpen(true)}
+            />
           )}
 
           {activeTab === 'recipes' && (
-            <RecipesPanel recipes={recipes} inventory={inventory} />
+            <RecipesManagementView
+              recipes={recipes}
+              inventory={inventory}
+              onOpenNewOrder={() => setIsNewOrderModalOpen(true)}
+            />
           )}
-        </div>
 
-        <EventsFeed events={liveEvents} connected={connected} />
+          {activeTab === 'settings' && (
+            <SettingsView
+              connected={connected}
+              onRefresh={refreshAll}
+            />
+          )}
+        </main>
       </div>
+
+      {/* Real-time Audit / Events Drawer */}
+      {isEventsDrawerOpen && (
+        <div className="events-drawer-backdrop" onClick={() => setIsEventsDrawerOpen(false)}>
+          <div className="events-drawer-content" onClick={(e) => e.stopPropagation()}>
+            <div className="drawer-header">
+              <h3 className="drawer-title">Auditoría en Tiempo Real (NATS)</h3>
+              <button
+                className="btn-close-drawer"
+                onClick={() => setIsEventsDrawerOpen(false)}
+                type="button"
+              >
+                ✕
+              </button>
+            </div>
+            <EventsFeed events={liveEvents} connected={connected} />
+          </div>
+        </div>
+      )}
+
+      {/* Floating AI Widget (docked at bottom right) */}
+      <FloatingAiWidget />
+
+      {/* Modal for Creating New Orders */}
+      <NewOrderModal
+        isOpen={isNewOrderModalOpen}
+        onClose={() => setIsNewOrderModalOpen(false)}
+        onOrderSuccess={() => {
+          refreshAll();
+        }}
+      />
     </div>
   );
 }

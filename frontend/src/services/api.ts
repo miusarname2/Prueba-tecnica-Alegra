@@ -42,6 +42,31 @@ export async function getPurchases() {
   return res.json();
 }
 
+// ── AI Copilot & Insights ──
+
+export async function getAiInsights() {
+  const res = await fetch(`${API_URL}/api/ai/insights`);
+  return res.json();
+}
+
+export async function simulateDemand(platesCount: number) {
+  const res = await fetch(`${API_URL}/api/ai/simulate`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ platesCount }),
+  });
+  return res.json();
+}
+
+export async function askAiCopilot(message: string) {
+  const res = await fetch(`${API_URL}/api/ai/chat`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ message }),
+  });
+  return res.json();
+}
+
 // ── WebSocket ──
 
 export type WSHandler = (type: string, data: any) => void;
