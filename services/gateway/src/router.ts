@@ -12,6 +12,7 @@ import {
   StatsResponse,
   OrderRequestedEvent,
 } from './types';
+import { getAiInsights, simulateDemand, chatWithCopilot } from './ai-service';
 
 type RouteHandler = (req: IncomingMessage, res: ServerResponse, params?: Record<string, string>) => Promise<void>;
 
@@ -168,6 +169,31 @@ addRoute('GET', '/api/purchases', async (_req, res) => {
     'SELECT * FROM purchase_history ORDER BY purchased_at DESC LIMIT 50'
   );
   sendJson(res, 200, purchases);
+});
+
+// ── AI Copilot & Simulation Routes ──
+
+addRoute('GET', '/api/ai/insights', async (_req, res) => {
+  const insights = await getAiInsights();
+  sendJson(res, 200, insights);
+});
+
+addRoute('POST', '/api/ai/simulate', async (req, res) => {
+  const body = await parseBody(req);
+  const count = parseInt(body.platesCount || '10');
+  const result = await simulateDemand(count);
+  sendJson(res, 200, result);
+});
+
+addRoute('POST', '/api/ai/chat', async (req, res) => {
+  const body = await parseBody(req);
+  const message = body.message || '';
+  if (!message.trim()) {
+    sendJson(res, 400, { error: 'Mensaje requerido' });
+    return;
+  }
+  const response = await chatWithCopilot(message);
+  sendJson(res, 200, response);
 });
 
 addRoute('GET', '/api/health', async (_req, res) => {
